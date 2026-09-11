@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>KYNER Wholesale Portal</title>
+<title>KYNER Dealer Portal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -269,6 +269,51 @@
   .verified-badge svg{color:var(--sage);}
 
   .product-row-clickable{cursor:pointer;}
+
+  .subtabs{display:flex;gap:6px;margin-bottom:26px;border-bottom:1px solid var(--border-soft);}
+  .subtab{padding:9px 4px;margin-right:22px;background:none;border:none;color:var(--text-faint);font-family:inherit;font-size:13.5px;cursor:pointer;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;}
+  .subtab.active{color:var(--text);border-bottom-color:var(--brass);}
+  .subtab:hover{color:var(--text);}
+
+  .logo-preview-box{width:64px;height:64px;border-radius:50%;background:var(--panel-2);border:1px dashed var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;}
+  .logo-preview-box img{width:100%;height:100%;object-fit:cover;}
+  .org-logo-topbar{width:26px;height:26px;border-radius:50%;object-fit:cover;flex-shrink:0;}
+  .org-logo-gate{width:72px;height:72px;border-radius:50%;object-fit:cover;margin-bottom:20px;border:2px solid var(--border-soft);}
+
+  .theme-choices{display:flex;gap:14px;margin-top:8px;}
+  .theme-card{width:130px;padding:14px;border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;text-align:center;transition:border-color .15s;}
+  .theme-card.active{border-color:var(--brass);}
+  .theme-card span{display:block;margin-top:10px;font-size:12.5px;color:var(--text-dim);}
+  .theme-swatch{width:100%;height:52px;border-radius:6px;}
+  .dark-swatch{background:linear-gradient(135deg,#1a1c20,#0c0d0f);}
+  .light-swatch{background:linear-gradient(135deg,#ffffff,#e7e6e2);border:1px solid #d8d8dc;}
+
+  /* ---------- Light theme override ---------- */
+  body.theme-light{
+    --bg:#f5f4f1;
+    --bg-2:#ffffff;
+    --panel:#ffffff;
+    --panel-2:#f1f0ec;
+    --border:#dcdad4;
+    --border-soft:#e7e5e0;
+    --text:#1c1d1f;
+    --text-dim:#5c5f66;
+    --text-faint:#8a8d94;
+    --brass:#a9824f;
+    --brass-soft:rgba(169,130,79,0.12);
+    --brass-dim:#8f7345;
+    --sage:#3f8a70;
+    --sage-soft:rgba(63,138,112,0.12);
+    --danger:#c0453b;
+    --danger-soft:rgba(192,69,59,0.08);
+    --shadow:0 12px 32px rgba(0,0,0,0.08);
+  }
+  body.theme-light .wordmark .k,
+  body.theme-light .gate h1 .accent{
+    background:linear-gradient(120deg,#8f6b3d,var(--brass) 55%,#6b5228);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  body.theme-light ::selection{background:var(--brass);color:#fff;}
   .product-view-img{width:100%;max-height:280px;object-fit:cover;border-radius:8px;background:var(--panel-2);margin-bottom:20px;}
   .product-view-img-placeholder{width:100%;height:180px;border-radius:8px;background:var(--panel-2);display:flex;align-items:center;justify-content:center;color:var(--text-faint);margin-bottom:20px;}
   .product-view-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:4px;}
@@ -388,8 +433,18 @@ const K = {
   categories: 'kyner:categories',
   products: 'kyner:products',
   dealers: 'kyner:dealers',
-  adminpass: 'kyner:adminpass'
+  adminpass: 'kyner:adminpass',
+  orgProfile: 'kyner:orgProfile',
+  theme: 'kyner:theme'
 };
+
+const INDUSTRIES = [
+  'Technology & Electronics','Fashion & Apparel','Food & Beverage','FMCG / Consumer Goods',
+  'Automotive','Construction & Hardware','Health & Wellness','Beauty & Cosmetics',
+  'Home & Furniture','Agriculture','Manufacturing','Retail & Wholesale','Telecommunications',
+  'Sporting Goods','Jewelry & Accessories','Stationery & Office Supplies','Pharmaceuticals',
+  'Industrial Equipment & Machinery','Other'
+];
 
 let state = {
   view: 'loading',
@@ -398,8 +453,11 @@ let state = {
   products: [],
   dealers: [],
   adminPass: 'kyner2026',
+  orgProfile: null,
+  theme: 'dark',
   session: null,
   adminTab: 'dealers',
+  settingsSubTab: 'profile',
   dealerTab: 'prices',
   toast: null,
   modal: null,
@@ -409,6 +467,7 @@ let state = {
 };
 
 let pendingImageData = null;
+let pendingLogoData = null;
 
 function genId(prefix){ return prefix + '_' + Math.random().toString(36).slice(2,9); }
 function genPassword(){
@@ -428,14 +487,19 @@ function nextKynerRegNo(){
   });
   return 'KYN-' + String(max+1).padStart(4,'0');
 }
+function applyTheme(){
+  document.body.classList.toggle('theme-light', state.theme === 'light');
+}
 
 async function loadAll(){
-  const [brands, categories, products, dealers, adminPass] = await Promise.all([
+  const [brands, categories, products, dealers, adminPass, orgProfile, theme] = await Promise.all([
     STORE.get(K.brands, true),
     STORE.get(K.categories, true),
     STORE.get(K.products, true),
     STORE.get(K.dealers, true),
-    STORE.get(K.adminpass, true)
+    STORE.get(K.adminpass, true),
+    STORE.get(K.orgProfile, true),
+    STORE.get(K.theme, true)
   ]);
 
   if(!brands){
@@ -465,7 +529,19 @@ async function loadAll(){
   if(!adminPass){ state.adminPass = 'kyner2026'; await STORE.set(K.adminpass, 'kyner2026', true); }
   else state.adminPass = adminPass;
 
-  state.view = 'gate';
+  if(!orgProfile){
+    state.orgProfile = {
+      logo: null, name: 'KYNER', tagline: 'Premium tech gear, Sri Lanka',
+      industry: 'Technology & Electronics', address: '', description: '',
+      email: '', phone: '', regNumber: '', website: ''
+    };
+    await STORE.set(K.orgProfile, state.orgProfile, true);
+  } else state.orgProfile = orgProfile;
+
+  state.theme = theme === 'light' ? 'light' : 'dark';
+  applyTheme();
+
+  state.view = 'dealerLogin';
   render();
 }
 
@@ -478,11 +554,13 @@ function showToast(msg){
 /* ---------- Views ---------- */
 
 function viewGate(){
+  const org = state.orgProfile || {};
   return `
     <div class="gate">
-      <div class="gate-mark">SRI LANKA &middot; PREMIUM TECH GEAR</div>
-      <h1>KYNER <span class="accent">Wholesale</span></h1>
-      <p>Brand-wise dealer pricing, in one place. Sign in to manage the catalog, or as a dealer to view your prices.</p>
+      ${org.logo ? `<img class="org-logo-gate" src="${org.logo}" alt="">` : ''}
+      <div class="gate-mark">${org.industry ? org.industry.toUpperCase() : 'WHOLESALE PORTAL'}</div>
+      <h1>${org.name || 'KYNER'} <span class="accent">Wholesale</span></h1>
+      <p>${org.tagline || 'Brand-wise dealer pricing, in one place.'} Sign in to manage the catalog, or as a dealer to view your prices.</p>
       <div class="gate-choices">
         <div class="gate-card" onclick="go('adminLogin')">
           <div class="icon">${ICONS.admin}</div>
@@ -521,7 +599,6 @@ function viewAdminLogin(){
 function viewDealerLogin(){
   return `
     <div class="gate">
-      <button class="back-link" onclick="go('gate')">${ICONS.back} back</button>
       <div class="form-box">
         <div class="form-icon" style="background:var(--sage-soft);color:var(--sage);">${ICONS.dealer}</div>
         <h2>Dealer sign in</h2>
@@ -539,9 +616,13 @@ function viewDealerLogin(){
 
 function topbar(roleLabel, opts){
   opts = opts || {};
+  const org = state.orgProfile || {};
   return `
     <div class="topbar">
-      <div class="wordmark"><span class="k">KYNER</span> <span class="sub">WHOLESALE</span></div>
+      <div class="wordmark">
+        ${org.logo ? `<img class="org-logo-topbar" src="${org.logo}" alt="">` : ''}
+        <span class="k">${org.name || 'KYNER'}</span> <span class="sub">WHOLESALE</span>
+      </div>
       <div class="who">
         <div class="who-name">
           <div class="avatar">${initials(roleLabel)}</div><span>${roleLabel}</span>
@@ -719,13 +800,94 @@ function adminCategoriesTab(){
 }
 
 function adminSettingsTab(){
+  let sub;
+  if(state.settingsSubTab === 'customizations') sub = settingsCustomizationsPanel();
+  else if(state.settingsSubTab === 'security') sub = settingsSecurityPanel();
+  else sub = settingsProfilePanel();
+
   return `
     <div class="section-head"><h2>Admin settings</h2></div>
+    <div class="subtabs">
+      <button class="subtab ${state.settingsSubTab==='profile'?'active':''}" onclick="setSettingsSubTab('profile')">Profile</button>
+      <button class="subtab ${state.settingsSubTab==='customizations'?'active':''}" onclick="setSettingsSubTab('customizations')">Customizations</button>
+      <button class="subtab ${state.settingsSubTab==='security'?'active':''}" onclick="setSettingsSubTab('security')">Security</button>
+    </div>
+    ${sub}
+  `;
+}
+
+function settingsCustomizationsPanel(){
+  return `
+    <div class="panel pad" style="max-width:560px;">
+      <label>Theme</label>
+      <p class="hint" style="margin-top:-6px;">Applies to the whole portal — admin and dealer views.</p>
+      <div class="theme-choices">
+        <div class="theme-card ${state.theme==='dark'?'active':''}" onclick="setTheme('dark')">
+          <div class="theme-swatch dark-swatch"></div>
+          <span>Dark</span>
+        </div>
+        <div class="theme-card ${state.theme==='light'?'active':''}" onclick="setTheme('light')">
+          <div class="theme-swatch light-swatch"></div>
+          <span>Light</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function settingsSecurityPanel(){
+  return `
     <div class="panel pad" style="max-width:400px;">
-      <label>Change admin password</label>
+      <label>Reset admin password</label>
       <input type="password" id="newAdminPass" placeholder="New password">
       <button class="btn" onclick="changeAdminPass()">Update password</button>
       <div id="settingsMsg"></div>
+    </div>
+  `;
+}
+
+function settingsProfilePanel(){
+  const o = state.orgProfile || {};
+  return `
+    <div class="panel pad" style="max-width:560px;">
+      <label>Organization logo <span class="tag-hint">(shown as a circle)</span></label>
+      <div class="image-upload">
+        <div class="logo-preview-box" id="logoPreview">${pendingLogoData ? `<img src="${pendingLogoData}">` : ICONS.imgIcon}</div>
+        <div class="file-input-wrap">
+          <input type="file" accept="image/*" id="op_logoFile" onchange="handleLogoSelect(this)">
+          <div id="removeLogoWrap">${pendingLogoData ? `<button type="button" class="btn ghost" style="margin-top:8px;" onclick="clearLogo()">Remove logo</button>` : ''}</div>
+        </div>
+      </div>
+
+      <label>Organization name</label>
+      <input type="text" id="op_name" value="${o.name||''}" placeholder="e.g. KYNER">
+
+      <label>Business tagline</label>
+      <input type="text" id="op_tagline" value="${o.tagline||''}" placeholder="e.g. Premium tech gear, Sri Lanka">
+
+      <label>Organization industry</label>
+      <select id="op_industry">
+        ${INDUSTRIES.map(i => `<option value="${i}" ${o.industry===i?'selected':''}>${i}</option>`).join('')}
+      </select>
+
+      <label>Organization address</label>
+      <textarea id="op_address" placeholder="Street / city / country">${o.address||''}</textarea>
+
+      <label>Business description</label>
+      <textarea id="op_description" placeholder="A short description of what your business does">${o.description||''}</textarea>
+
+      <div class="row-2">
+        <div><label>Business email</label><input type="email" id="op_email" value="${o.email||''}" placeholder="info@business.com"></div>
+        <div><label>Business number</label><input type="text" id="op_phone" value="${o.phone||''}" placeholder="Mobile / office number"></div>
+      </div>
+
+      <div class="row-2">
+        <div><label>Business registration number</label><input type="text" id="op_regNumber" value="${o.regNumber||''}" placeholder="e.g. PV 00123456"></div>
+        <div><label>Website URL</label><input type="text" id="op_website" value="${o.website||''}" placeholder="https://yourbusiness.com"></div>
+      </div>
+
+      <button class="btn" onclick="submitOrgProfile()">Save profile</button>
+      <div id="orgProfileMsg"></div>
     </div>
   `;
 }
@@ -1040,9 +1202,24 @@ function dealerLogin(){
   render();
 }
 
-function logout(){ state.session = null; state.view = 'gate'; render(); }
+function logout(){ state.session = null; state.view = 'dealerLogin'; render(); }
 
-function setAdminTab(t){ state.adminTab = t; render(); }
+function setAdminTab(t){
+  state.adminTab = t;
+  if(t === 'settings') pendingLogoData = (state.orgProfile && state.orgProfile.logo) || null;
+  render();
+}
+function setSettingsSubTab(t){
+  state.settingsSubTab = t;
+  if(t === 'profile') pendingLogoData = (state.orgProfile && state.orgProfile.logo) || null;
+  render();
+}
+async function setTheme(t){
+  state.theme = t;
+  applyTheme();
+  await STORE.set(K.theme, t, true);
+  render();
+}
 function setDealerTab(t){ state.dealerTab = t; render(); }
 function setDealerFilter(v){ state.dealerFilter = v; render(); }
 function setDealerBrand(v){ state.dealerBrand = v; render(); }
@@ -1371,6 +1548,59 @@ async function changeAdminPass(){
   state.adminPass = val;
   await STORE.set(K.adminpass, val, true);
   document.getElementById('settingsMsg').innerHTML = `<div class="success-msg">Password updated.</div>`;
+}
+
+function handleLogoSelect(input){
+  const file = input.files[0];
+  if(!file) return;
+  if(!file.type.startsWith('image/')){ showToast('Please choose an image file.'); return; }
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      // center-crop to a square, then downscale
+      const size = Math.min(img.width, img.height);
+      const sx = (img.width - size) / 2;
+      const sy = (img.height - size) / 2;
+      const outSize = 300;
+      const canvas = document.createElement('canvas');
+      canvas.width = outSize; canvas.height = outSize;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, sx, sy, size, size, 0, 0, outSize, outSize);
+      pendingLogoData = canvas.toDataURL('image/png');
+      const preview = document.getElementById('logoPreview');
+      if(preview) preview.innerHTML = `<img src="${pendingLogoData}">`;
+      const wrap = document.getElementById('removeLogoWrap');
+      if(wrap) wrap.innerHTML = `<button type="button" class="btn ghost" style="margin-top:8px;" onclick="clearLogo()">Remove logo</button>`;
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearLogo(){
+  pendingLogoData = null;
+  render();
+}
+
+async function submitOrgProfile(){
+  const profile = {
+    logo: pendingLogoData,
+    name: document.getElementById('op_name').value.trim() || 'KYNER',
+    tagline: document.getElementById('op_tagline').value.trim(),
+    industry: document.getElementById('op_industry').value,
+    address: document.getElementById('op_address').value.trim(),
+    description: document.getElementById('op_description').value.trim(),
+    email: document.getElementById('op_email').value.trim(),
+    phone: document.getElementById('op_phone').value.trim(),
+    regNumber: document.getElementById('op_regNumber').value.trim(),
+    website: document.getElementById('op_website').value.trim()
+  };
+  state.orgProfile = profile;
+  await STORE.set(K.orgProfile, profile, true);
+  const msg = document.getElementById('orgProfileMsg');
+  if(msg) msg.innerHTML = `<div class="success-msg">Profile saved.</div>`;
+  showToast('Organization profile updated.');
 }
 
 /* ---------- Render (with focus preservation for live-typed inputs) ---------- */
