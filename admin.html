@@ -1,0 +1,1636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>KYNER Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0c0d0f;
+    --bg-2:#111316;
+    --panel:#17191d;
+    --panel-2:#1d2024;
+    --border:#26292f;
+    --border-soft:#1e2126;
+    --text:#eef0f1;
+    --text-dim:#9aa0a8;
+    --text-faint:#5f6570;
+    --brass:#cda876;
+    --brass-soft:rgba(205,168,118,0.12);
+    --brass-dim:#8f7a55;
+    --sage:#7fae9c;
+    --sage-soft:rgba(127,174,156,0.12);
+    --danger:#e2665b;
+    --danger-soft:rgba(226,102,91,0.12);
+    --radius:6px;
+    --radius-sm:4px;
+    --shadow:0 12px 32px rgba(0,0,0,0.35);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(205,168,118,0.06), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 10%, rgba(127,174,156,0.04), transparent 60%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Space Grotesk',sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  ::selection{background:var(--brass);color:#141414;}
+  @media (prefers-reduced-motion: reduce){ *{animation:none !important; transition:none !important;} }
+
+  #app > *{ animation:fadeIn .35s ease; }
+  @keyframes fadeIn{ from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);} }
+
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 32px;
+    border-bottom:1px solid var(--border-soft);
+    background:rgba(17,19,22,0.7);
+    backdrop-filter:blur(6px);
+    position:sticky;top:0;z-index:10;
+  }
+  .wordmark{
+    font-weight:700;font-size:19px;letter-spacing:0.3px;
+    display:flex;align-items:baseline;gap:9px;
+  }
+  .wordmark .k{
+    background:linear-gradient(120deg,#e6c99a,var(--brass) 60%,#a98a5e);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .wordmark .sub{font-size:10.5px;color:var(--text-faint);font-weight:500;font-family:'IBM Plex Mono',monospace;letter-spacing:2px;}
+  .who{display:flex;align-items:center;gap:16px;font-size:13px;color:var(--text-dim);}
+  .who .who-name{display:flex;align-items:center;gap:8px;cursor:pointer;}
+  .avatar{
+    width:26px;height:26px;border-radius:50%;background:var(--brass-soft);color:var(--brass);
+    display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;font-family:'IBM Plex Mono',monospace;
+  }
+  .who button{
+    background:none;border:1px solid var(--border);color:var(--text-dim);
+    padding:7px 14px;border-radius:var(--radius-sm);cursor:pointer;font-family:inherit;font-size:12.5px;
+    transition:border-color .15s, color .15s;
+    display:flex;align-items:center;gap:6px;
+  }
+  .who button:hover{border-color:var(--brass-dim);color:var(--text);}
+
+  .wrap{max-width:1160px;margin:0 auto;padding:40px 28px 90px;}
+
+  .gate{
+    min-height:88vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+    padding:24px;position:relative;
+  }
+  .gate-mark{
+    font-size:11px;letter-spacing:4px;color:var(--brass);font-family:'IBM Plex Mono',monospace;margin-bottom:18px;
+  }
+  .gate h1{
+    font-size:44px;font-weight:600;margin:0 0 14px;letter-spacing:-1px;line-height:1.1;
+  }
+  .gate h1 .accent{
+    background:linear-gradient(120deg,#e6c99a,var(--brass) 55%,#a98a5e);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .gate p{color:var(--text-dim);margin:0 0 44px;font-size:15.5px;max-width:440px;line-height:1.55;}
+  .gate-choices{display:flex;gap:18px;flex-wrap:wrap;justify-content:center;}
+  .gate-card{
+    width:230px;padding:30px 24px;border:1px solid var(--border);border-radius:var(--radius);
+    cursor:pointer;text-align:left;background:linear-gradient(180deg,var(--panel),var(--bg-2));
+    transition:border-color .18s, transform .18s, box-shadow .18s;
+  }
+  .gate-card:hover{border-color:var(--brass-dim);transform:translateY(-3px);box-shadow:var(--shadow);}
+  .gate-card .icon{
+    width:34px;height:34px;border-radius:8px;background:var(--brass-soft);color:var(--brass);
+    display:flex;align-items:center;justify-content:center;margin-bottom:16px;
+  }
+  .gate-card.dealer .icon{background:var(--sage-soft);color:var(--sage);}
+  .gate-card .tag{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--text-faint);letter-spacing:1.5px;}
+  .gate-card h3{margin:6px 0 8px;font-size:18px;font-weight:600;}
+  .gate-card p{margin:0;font-size:12.5px;color:var(--text-faint);line-height:1.5;}
+
+  .form-box{
+    width:100%;max-width:380px;margin:0 auto;text-align:left;
+    border:1px solid var(--border);background:linear-gradient(180deg,var(--panel),var(--bg-2));
+    border-radius:var(--radius);padding:32px;box-shadow:var(--shadow);
+  }
+  .form-box .form-icon{
+    width:38px;height:38px;border-radius:9px;background:var(--brass-soft);color:var(--brass);
+    display:flex;align-items:center;justify-content:center;margin-bottom:18px;
+  }
+  .form-box h2{margin:0 0 6px;font-size:19px;font-weight:600;}
+  .form-box .hint{color:var(--text-faint);font-size:12.5px;margin:0 0 22px;line-height:1.5;}
+  label{display:block;font-size:11.5px;color:var(--text-dim);margin:15px 0 6px;letter-spacing:0.2px;}
+  label:first-of-type{margin-top:0;}
+  label .tag-hint{color:var(--text-faint);font-weight:400;text-transform:none;letter-spacing:0;}
+  input,select,textarea{
+    width:100%;padding:10px 13px;background:var(--panel-2);border:1px solid var(--border);
+    color:var(--text);border-radius:var(--radius-sm);font-family:inherit;font-size:14px;
+    transition:border-color .15s, background .15s;
+  }
+  textarea{resize:vertical;min-height:56px;font-family:inherit;}
+  input::placeholder,textarea::placeholder{color:var(--text-faint);}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--brass-dim);background:#1f2226;}
+  select{appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%239aa0a8' stroke-width='1.4' fill='none'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 13px center; padding-right:32px;}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;
+    margin-top:22px;width:100%;padding:11px;
+    background:linear-gradient(120deg,#dcbb8b,var(--brass));color:#161311;
+    border:none;border-radius:var(--radius-sm);font-family:inherit;font-weight:600;font-size:14px;cursor:pointer;
+    transition:filter .15s, transform .1s;
+  }
+  .btn:hover{filter:brightness(1.08);}
+  .btn:active{transform:scale(0.98);}
+  .btn.secondary{background:none;border:1px solid var(--border);color:var(--text);}
+  .btn.secondary:hover{border-color:var(--brass-dim);filter:none;}
+  .btn.danger{background:none;border:1px solid rgba(226,102,91,0.4);color:var(--danger);width:auto;padding:6px 13px;font-size:12px;margin-top:0;}
+  .btn.danger:hover{border-color:var(--danger);background:var(--danger-soft);filter:none;}
+  .btn.small{width:auto;padding:9px 16px;font-size:13px;margin-top:0;}
+  .btn.ghost{background:none;border:1px solid var(--border);color:var(--text-dim);width:auto;padding:7px 13px;font-size:12.5px;margin-top:0;}
+  .btn.ghost:hover{border-color:var(--sage);color:var(--sage);filter:none;}
+  .error{color:var(--danger);font-size:12.5px;margin-top:10px;}
+  .success-msg{color:var(--sage);font-size:12.5px;margin-top:10px;}
+  .back-link{background:none;border:none;color:var(--text-faint);font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;margin-bottom:26px;padding:0;display:flex;align-items:center;gap:6px;}
+  .back-link:hover{color:var(--brass);}
+
+  .tabs{display:flex;gap:2px;border-bottom:1px solid var(--border-soft);margin-bottom:30px;overflow-x:auto;}
+  .tab{
+    padding:10px 4px;margin-right:28px;background:none;border:none;color:var(--text-faint);
+    font-family:inherit;font-size:14px;cursor:pointer;border-bottom:2px solid transparent;
+    display:flex;align-items:center;gap:8px;white-space:nowrap;transition:color .15s, border-color .15s;
+  }
+  .tab.active{color:var(--text);border-bottom-color:var(--brass);}
+  .tab:hover{color:var(--text);}
+
+  .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:16px;flex-wrap:wrap;}
+  .section-head h2{font-size:17px;margin:0;font-weight:600;letter-spacing:-0.2px;}
+  .section-head .count{color:var(--text-faint);font-size:11.5px;font-family:'IBM Plex Mono',monospace;letter-spacing:0.5px;}
+
+  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;}
+  .stat-card{
+    border:1px solid var(--border-soft);background:linear-gradient(180deg,var(--panel),var(--bg-2));
+    border-radius:var(--radius);padding:18px 20px;
+  }
+  .stat-card .stat-label{font-size:11px;color:var(--text-faint);font-family:'IBM Plex Mono',monospace;letter-spacing:0.5px;margin-bottom:8px;}
+  .stat-card .stat-value{font-size:26px;font-weight:600;letter-spacing:-0.5px;}
+  .stat-card .stat-value.brass{color:var(--brass);}
+  .stat-card .stat-value.sage{color:var(--sage);}
+  @media(max-width:760px){ .stats-row{grid-template-columns:repeat(2,1fr);} }
+
+  .panel{border:1px solid var(--border-soft);background:linear-gradient(180deg,var(--panel),var(--bg-2));border-radius:var(--radius);padding:8px;margin-bottom:26px;}
+  .panel.pad{padding:24px;}
+  table{width:100%;border-collapse:collapse;}
+  th{
+    text-align:left;font-size:10.5px;color:var(--text-faint);font-weight:500;
+    text-transform:uppercase;letter-spacing:0.8px;padding:14px 16px 12px;border-bottom:1px solid var(--border-soft);
+    font-family:'IBM Plex Mono',monospace;
+  }
+  td{padding:14px 16px;border-bottom:1px solid var(--border-soft);font-size:14px;vertical-align:middle;}
+  tr:last-child td{border-bottom:none;}
+  tbody tr{transition:background .12s;}
+  tbody tr:hover{background:rgba(255,255,255,0.015);}
+  .price{font-family:'IBM Plex Mono',monospace;color:var(--brass);font-weight:500;}
+  .muted{color:var(--text-faint);}
+  .pill{
+    display:inline-flex;align-items:center;gap:6px;padding:3px 10px 3px 8px;border-radius:12px;font-size:11px;font-family:'IBM Plex Mono',monospace;
+  }
+  .pill::before{content:'';width:6px;height:6px;border-radius:50%;}
+  .pill.active{background:var(--sage-soft);color:var(--sage);}
+  .pill.active::before{background:var(--sage);}
+  .pill.inactive{background:var(--danger-soft);color:var(--danger);}
+  .pill.inactive::before{background:var(--danger);}
+  .tag-chip{display:inline-block;padding:2px 9px;border-radius:10px;background:var(--panel-2);border:1px solid var(--border);font-size:11.5px;color:var(--text-dim);font-family:'IBM Plex Mono',monospace;}
+  .empty{color:var(--text-faint);font-size:13.5px;text-align:center;padding:50px 20px;display:flex;flex-direction:column;align-items:center;gap:12px;}
+  .empty .empty-icon{opacity:0.5;}
+
+  .brand-group{margin-bottom:34px;}
+  .brand-group h3{
+    font-size:12.5px;letter-spacing:1.5px;color:var(--brass);margin:0 0 14px;
+    font-family:'IBM Plex Mono',monospace;padding-bottom:10px;border-bottom:1px solid var(--border-soft);
+    display:flex;align-items:center;gap:10px;text-transform:uppercase;
+  }
+  .brand-group h3::before{content:'';width:8px;height:8px;background:var(--brass);border-radius:2px;flex-shrink:0;}
+  .search-row{display:flex;gap:10px;margin-bottom:28px;flex-wrap:wrap;}
+  .search-row input{max-width:300px;}
+  .search-row select{max-width:200px;}
+
+  .cred-box{
+    background:var(--panel-2);border:1px dashed var(--brass-dim);border-radius:var(--radius-sm);
+    padding:16px 18px;margin-top:18px;font-size:13px;
+  }
+  .cred-box .row{display:flex;justify-content:space-between;padding:4px 0;}
+  .cred-box .row span:first-child{color:var(--text-faint);}
+  .cred-box .row span:last-child{font-family:'IBM Plex Mono',monospace;color:var(--brass);font-weight:600;}
+
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(6,6,7,0.68);display:flex;align-items:center;justify-content:center;
+    z-index:50;padding:20px;backdrop-filter:blur(2px);
+    animation:fadeIn .18s ease;
+  }
+  .modal{background:linear-gradient(180deg,var(--panel),var(--bg-2));border:1px solid var(--border);border-radius:var(--radius);padding:28px;width:100%;max-width:460px;max-height:88vh;overflow-y:auto;box-shadow:var(--shadow);}
+  .modal.small{max-width:380px;}
+  .modal h3{margin:0 0 20px;font-size:17px;font-weight:600;}
+  .modal p.confirm-msg{font-size:14px;color:var(--text-dim);line-height:1.5;margin:0;}
+  .row-2{display:flex;gap:12px;}
+  .row-2 > div{flex:1;}
+  .modal-actions{display:flex;gap:10px;margin-top:24px;}
+  .modal-actions .btn{margin-top:0;}
+  .pass-row{display:flex;gap:8px;align-items:center;}
+  .pass-row input{flex:1;}
+  .toast{
+    position:fixed;bottom:26px;left:50%;transform:translateX(-50%);
+    background:var(--panel-2);border:1px solid var(--brass-dim);color:var(--text);
+    padding:12px 22px;border-radius:var(--radius-sm);font-size:13px;z-index:100;box-shadow:var(--shadow);
+    animation:fadeIn .2s ease;
+  }
+  .footer-note{color:var(--text-faint);font-size:11.5px;text-align:center;margin-top:44px;font-family:'IBM Plex Mono',monospace;letter-spacing:0.3px;}
+  .icon{display:inline-flex;}
+  svg{display:block;}
+
+  .thumb{width:42px;height:42px;border-radius:6px;object-fit:cover;background:var(--panel-2);border:1px solid var(--border-soft);}
+  .thumb-placeholder{width:42px;height:42px;border-radius:6px;background:var(--panel-2);border:1px solid var(--border-soft);display:flex;align-items:center;justify-content:center;color:var(--text-faint);}
+  .image-upload{display:flex;align-items:center;gap:14px;margin-top:6px;}
+  .image-preview-box{width:64px;height:64px;border-radius:8px;background:var(--panel-2);border:1px dashed var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;}
+  .image-preview-box img{width:100%;height:100%;object-fit:cover;}
+  .file-input-wrap{position:relative;flex:1;}
+  .file-input-wrap input[type=file]{font-size:12px;padding:8px;color:var(--text-dim);}
+
+  .profile-panel{max-width:640px;}
+  .profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+  .profile-field{padding:18px 22px;border-bottom:1px solid var(--border-soft);border-right:1px solid var(--border-soft);}
+  .profile-field:nth-child(2n){border-right:none;}
+  .profile-field .pf-label{font-size:10.5px;color:var(--text-faint);font-family:'IBM Plex Mono',monospace;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:6px;}
+  .profile-field .pf-value{font-size:14.5px;color:var(--text);}
+  .profile-field .pf-value.mono{font-family:'IBM Plex Mono',monospace;color:var(--brass);}
+  .profile-header{display:flex;align-items:center;gap:16px;margin-bottom:24px;}
+  .profile-avatar{width:52px;height:52px;border-radius:12px;background:var(--brass-soft);color:var(--brass);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;font-family:'IBM Plex Mono',monospace;}
+  .verified-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 11px 4px 8px;border-radius:12px;background:var(--sage-soft);color:var(--sage);font-size:11.5px;font-family:'IBM Plex Mono',monospace;letter-spacing:0.3px;margin-left:8px;}
+  .verified-badge svg{color:var(--sage);}
+
+  .product-row-clickable{cursor:pointer;}
+
+  .subtabs{display:flex;gap:6px;margin-bottom:26px;border-bottom:1px solid var(--border-soft);}
+  .subtab{padding:9px 4px;margin-right:22px;background:none;border:none;color:var(--text-faint);font-family:inherit;font-size:13.5px;cursor:pointer;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;}
+  .subtab.active{color:var(--text);border-bottom-color:var(--brass);}
+  .subtab:hover{color:var(--text);}
+
+  .logo-preview-box{width:64px;height:64px;border-radius:50%;background:var(--panel-2);border:1px dashed var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;}
+  .logo-preview-box img{width:100%;height:100%;object-fit:cover;}
+  .org-logo-topbar{width:26px;height:26px;border-radius:50%;object-fit:cover;flex-shrink:0;}
+  .org-logo-gate{width:72px;height:72px;border-radius:50%;object-fit:cover;margin-bottom:20px;border:2px solid var(--border-soft);}
+
+  .theme-choices{display:flex;gap:14px;margin-top:8px;}
+  .theme-card{width:130px;padding:14px;border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;text-align:center;transition:border-color .15s;}
+  .theme-card.active{border-color:var(--brass);}
+  .theme-card span{display:block;margin-top:10px;font-size:12.5px;color:var(--text-dim);}
+  .theme-swatch{width:100%;height:52px;border-radius:6px;}
+  .dark-swatch{background:linear-gradient(135deg,#1a1c20,#0c0d0f);}
+  .light-swatch{background:linear-gradient(135deg,#ffffff,#e7e6e2);border:1px solid #d8d8dc;}
+
+  /* ---------- Light theme override ---------- */
+  body.theme-light{
+    --bg:#f5f4f1;
+    --bg-2:#ffffff;
+    --panel:#ffffff;
+    --panel-2:#f1f0ec;
+    --border:#dcdad4;
+    --border-soft:#e7e5e0;
+    --text:#1c1d1f;
+    --text-dim:#5c5f66;
+    --text-faint:#8a8d94;
+    --brass:#a9824f;
+    --brass-soft:rgba(169,130,79,0.12);
+    --brass-dim:#8f7345;
+    --sage:#3f8a70;
+    --sage-soft:rgba(63,138,112,0.12);
+    --danger:#c0453b;
+    --danger-soft:rgba(192,69,59,0.08);
+    --shadow:0 12px 32px rgba(0,0,0,0.08);
+  }
+  body.theme-light .wordmark .k,
+  body.theme-light .gate h1 .accent{
+    background:linear-gradient(120deg,#8f6b3d,var(--brass) 55%,#6b5228);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  body.theme-light ::selection{background:var(--brass);color:#fff;}
+  .product-view-img{width:100%;max-height:280px;object-fit:cover;border-radius:8px;background:var(--panel-2);margin-bottom:20px;}
+  .product-view-img-placeholder{width:100%;height:180px;border-radius:8px;background:var(--panel-2);display:flex;align-items:center;justify-content:center;color:var(--text-faint);margin-bottom:20px;}
+  .product-view-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:4px;}
+  .product-view-title{font-size:19px;font-weight:600;line-height:1.3;}
+  .product-view-desc{font-size:14px;color:var(--text-dim);line-height:1.65;margin:16px 0;white-space:pre-wrap;}
+  .spec-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border-soft);font-size:13.5px;}
+  .spec-row:last-child{border-bottom:none;}
+  .spec-row .k{color:var(--text-faint);}
+  .spec-row .v{text-align:right;}
+
+  @media(max-width:640px){
+    .wrap{padding:28px 16px 60px;}
+    .gate h1{font-size:32px;}
+    .gate-choices{flex-direction:column;align-items:center;}
+    .row-2{flex-direction:column;}
+    .stats-row{grid-template-columns:1fr 1fr;}
+    .profile-grid{grid-template-columns:1fr;}
+    .profile-field{border-right:none;}
+    table,thead,tbody,th,td,tr{display:block;}
+    thead{display:none;}
+    tr{border-bottom:1px solid var(--border-soft);padding:12px 4px;}
+    td{border:none;padding:5px 0;display:flex;justify-content:space-between;gap:10px;align-items:center;}
+    td::before{content:attr(data-label);color:var(--text-faint);font-size:11px;font-family:'IBM Plex Mono',monospace;}
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<!-- ============================================================
+     FIREBASE SETUP (only needed if hosting this OUTSIDE Claude.ai,
+     e.g. on GitHub Pages or Firebase Hosting).
+     If you're just using this inside Claude.ai, ignore this block —
+     it does nothing until you paste in real config values below.
+     See the setup guide for step-by-step instructions.
+============================================================ -->
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+<script>
+  // 🔧 PASTE YOUR FIREBASE CONFIG HERE — replace the PASTE_ values below
+  // with the config object Firebase gives you when you register a Web App.
+  const firebaseConfig = {
+    apiKey: "AIzaSyCtq9xr2B-hoNjCMcX4Jcoj-nFA94DwbKk",
+    authDomain: "kyner-wholesale.firebaseapp.com",
+    projectId: "kyner-wholesale",
+    storageBucket: "kyner-wholesale.firebasestorage.app",
+    messagingSenderId: "569354821804",
+    appId: "1:569354821804:web:cc089f8461fb04ddf1ff09"
+  };
+
+  window.__fb = null;
+  if(firebaseConfig.apiKey && firebaseConfig.apiKey.indexOf('PASTE_') !== 0){
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    window.__fb = {
+      async get(key){
+        const snap = await db.collection('kyner_wholesale').doc(key).get();
+        return snap.exists ? JSON.parse(snap.data().json) : null;
+      },
+      async set(key, value){
+        await db.collection('kyner_wholesale').doc(key).set({ json: JSON.stringify(value) });
+        return true;
+      }
+    };
+  }
+</script>
+
+
+<script>
+const ICONS = {
+  admin: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/></svg>',
+  dealer: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7l2-4h14l2 4M3 7v13a1 1 0 001 1h16a1 1 0 001-1V7M3 7h18M8 11a4 4 0 008 0"/></svg>',
+  dealers: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>',
+  products: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 8l-9-5-9 5 9 5 9-5zM3 8v8l9 5 9-5V8M12 13v8"/></svg>',
+  brands: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.6 12.6L12 21l-8.6-8.4a2 2 0 010-2.8L11 2h9v9a2 2 0 01-.4 1.6z"/><circle cx="15.5" cy="7.5" r="1.2" fill="currentColor" stroke="none"/></svg>',
+  categories: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>',
+  settings: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.9l.1.1a2 2 0 11-2.9 2.9l-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.6V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1-1.6 1.7 1.7 0 00-1.9.3l-.1.1a2 2 0 11-2.9-2.9l.1-.1a1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.6-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.6-1 1.7 1.7 0 00-.3-1.9l-.1-.1a2 2 0 112.9-2.9l.1.1a1.7 1.7 0 001.9.3H9a1.7 1.7 0 001-1.6V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.6 1.7 1.7 0 001.9-.3l.1-.1a2 2 0 112.9 2.9l-.1.1a1.7 1.7 0 00-.3 1.9V9a1.7 1.7 0 001.6 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.6 1z"/></svg>',
+  empty: '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="7" width="18" height="13" rx="1.5"/><path d="M3 7l3-4h12l3 4M9 11a3 3 0 006 0"/></svg>',
+  signout: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>',
+  back: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>',
+  imgIcon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>',
+  profile: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>',
+  verified: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1l2.9 1.6 3.3-.3 1.2 3.1 2.9 1.7-.9 3.2.9 3.2-2.9 1.7-1.2 3.1-3.3-.3L12 21l-2.9-1.6-3.3.3-1.2-3.1L1.7 15l.9-3.2-.9-3.2 2.9-1.7L5.8 3.7l3.3.3z"/><path d="M8.5 12.2l2.2 2.2 4.3-4.6" stroke="#0c0d0f" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  list: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>',
+  refresh: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.5 9a9 9 0 0114.85-3.36L23 10M1 14l4.65 4.36A9 9 0 0020.5 15"/></svg>'
+};
+
+const STORE = {
+  async get(key, shared){
+    if(window.storage){
+      try{ const r = await window.storage.get(key, shared); return r ? JSON.parse(r.value) : null; }
+      catch(e){ return null; }
+    }
+    if(window.__fb){
+      try{ return await window.__fb.get(key); }
+      catch(e){ console.error('Firestore get failed', e); return null; }
+    }
+    console.warn('No storage backend configured — see the Firebase setup block at the top of this file.');
+    return null;
+  },
+  async set(key, value, shared){
+    if(window.storage){
+      try{ return await window.storage.set(key, JSON.stringify(value), shared); }
+      catch(e){ console.error('storage set failed', e); return null; }
+    }
+    if(window.__fb){
+      try{ return await window.__fb.set(key, value); }
+      catch(e){ console.error('Firestore set failed', e); return null; }
+    }
+    console.warn('No storage backend configured — see the Firebase setup block at the top of this file.');
+    return null;
+  }
+};
+
+const K = {
+  brands: 'kyner:brands',
+  categories: 'kyner:categories',
+  products: 'kyner:products',
+  dealers: 'kyner:dealers',
+  adminpass: 'kyner:adminpass',
+  orgProfile: 'kyner:orgProfile',
+  theme: 'kyner:theme'
+};
+
+const INDUSTRIES = [
+  'Technology & Electronics','Fashion & Apparel','Food & Beverage','FMCG / Consumer Goods',
+  'Automotive','Construction & Hardware','Health & Wellness','Beauty & Cosmetics',
+  'Home & Furniture','Agriculture','Manufacturing','Retail & Wholesale','Telecommunications',
+  'Sporting Goods','Jewelry & Accessories','Stationery & Office Supplies','Pharmaceuticals',
+  'Industrial Equipment & Machinery','Other'
+];
+
+let state = {
+  view: 'loading',
+  brands: [],
+  categories: [],
+  products: [],
+  dealers: [],
+  adminPass: 'kyner2026',
+  orgProfile: null,
+  theme: 'dark',
+  session: null,
+  adminTab: 'dealers',
+  settingsSubTab: 'profile',
+  dealerTab: 'prices',
+  toast: null,
+  modal: null,
+  dealerFilter: '',
+  dealerBrand: 'All',
+  dealerCategory: 'All'
+};
+
+let pendingImageData = null;
+let pendingLogoData = null;
+
+function genId(prefix){ return prefix + '_' + Math.random().toString(36).slice(2,9); }
+function genPassword(){
+  const chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+  let s = '';
+  for(let i=0;i<8;i++) s += chars[Math.floor(Math.random()*chars.length)];
+  return s;
+}
+function initials(name){
+  return (name||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+}
+function nextKynerRegNo(){
+  let max = 0;
+  state.dealers.forEach(d=>{
+    const m = /^KYN-(\d+)$/.exec(d.kynerRegNo||'');
+    if(m){ const n = parseInt(m[1],10); if(n>max) max = n; }
+  });
+  return 'KYN-' + String(max+1).padStart(4,'0');
+}
+function applyTheme(){
+  document.body.classList.toggle('theme-light', state.theme === 'light');
+}
+
+async function loadAll(){
+  const [brands, categories, products, dealers, adminPass, orgProfile, theme] = await Promise.all([
+    STORE.get(K.brands, true),
+    STORE.get(K.categories, true),
+    STORE.get(K.products, true),
+    STORE.get(K.dealers, true),
+    STORE.get(K.adminpass, true),
+    STORE.get(K.orgProfile, true),
+    STORE.get(K.theme, true)
+  ]);
+
+  if(!brands){
+    state.brands = ['MSI','UGREEN','Game Street Accessories'];
+    await STORE.set(K.brands, state.brands, true);
+  } else state.brands = brands;
+
+  if(!categories){
+    state.categories = ['Laptops','Monitors','Power Banks','Chargers','Keyboards'];
+    await STORE.set(K.categories, state.categories, true);
+  } else state.categories = categories;
+
+  if(!products){
+    state.products = [
+      {id:genId('p'), brand:'MSI', category:'Laptops', name:'MSI Modern 14 Laptop', sku:'MSI-M14-C13', description:'13th Gen Intel Core i5, 14" FHD display, 16GB RAM, 512GB SSD. Slim aluminum chassis built for everyday productivity.', wholesale:185000, retail:219000, stock:12, image:null},
+      {id:genId('p'), brand:'MSI', category:'Monitors', name:'MSI Optix 24" Monitor', sku:'MSI-OPT-G241', description:'24" Full HD IPS panel, 144Hz refresh rate, 1ms response time. Ideal for gaming and everyday multitasking.', wholesale:38000, retail:46000, stock:20, image:null},
+      {id:genId('p'), brand:'UGREEN', category:'Power Banks', name:'UGREEN 20000mAh Power Bank', sku:'UG-PB-20K', description:'20000mAh capacity with 22.5W fast charging, dual USB-A and USB-C output. Charges most phones 3-4 times.', wholesale:6200, retail:8900, stock:60, image:null},
+      {id:genId('p'), brand:'UGREEN', category:'Chargers', name:'UGREEN 65W GaN Charger', sku:'UG-CH-65W', description:'Compact 65W GaN charger with 3 ports. Fast-charges laptops, tablets and phones simultaneously.', wholesale:4100, retail:5900, stock:45, image:null},
+      {id:genId('p'), brand:'Game Street Accessories', category:'Keyboards', name:'RGB Mechanical Keyboard', sku:'GSA-KB-RGB1', description:'Full-size mechanical keyboard with blue switches and per-key RGB lighting. Durable double-shot keycaps.', wholesale:7200, retail:9900, stock:18, image:null}
+    ];
+    await STORE.set(K.products, state.products, true);
+  } else state.products = products;
+
+  if(!dealers){ state.dealers = []; await STORE.set(K.dealers, [], true); }
+  else state.dealers = dealers;
+
+  if(!adminPass){ state.adminPass = 'kyner2026'; await STORE.set(K.adminpass, 'kyner2026', true); }
+  else state.adminPass = adminPass;
+
+  if(!orgProfile){
+    state.orgProfile = {
+      logo: null, name: 'KYNER', tagline: 'Premium tech gear, Sri Lanka',
+      industry: 'Technology & Electronics', address: '', description: '',
+      email: '', phone: '', regNumber: '', website: ''
+    };
+    await STORE.set(K.orgProfile, state.orgProfile, true);
+  } else state.orgProfile = orgProfile;
+
+  state.theme = theme === 'light' ? 'light' : 'dark';
+  applyTheme();
+
+  state.view = 'adminLogin';
+  render();
+}
+
+function showToast(msg){
+  state.toast = msg;
+  render();
+  setTimeout(()=>{ state.toast = null; render(); }, 2600);
+}
+
+/* ---------- Views ---------- */
+
+function viewGate(){
+  const org = state.orgProfile || {};
+  return `
+    <div class="gate">
+      ${org.logo ? `<img class="org-logo-gate" src="${org.logo}" alt="">` : ''}
+      <div class="gate-mark">${org.industry ? org.industry.toUpperCase() : 'WHOLESALE PORTAL'}</div>
+      <h1>${org.name || 'KYNER'} <span class="accent">Wholesale</span></h1>
+      <p>${org.tagline || 'Brand-wise dealer pricing, in one place.'} Sign in to manage the catalog, or as a dealer to view your prices.</p>
+      <div class="gate-choices">
+        <div class="gate-card" onclick="go('adminLogin')">
+          <div class="icon">${ICONS.admin}</div>
+          <div class="tag">INTERNAL</div>
+          <h3>Admin</h3>
+          <p>Manage brands, categories, products and dealer accounts.</p>
+        </div>
+        <div class="gate-card dealer" onclick="go('dealerLogin')">
+          <div class="icon">${ICONS.dealer}</div>
+          <div class="tag">DEALER</div>
+          <h3>Dealer login</h3>
+          <p>View wholesale prices and your account profile.</p>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function viewAdminLogin(){
+  return `
+    <div class="gate">
+      <div class="form-box">
+        <div class="form-icon">${ICONS.admin}</div>
+        <h2>Admin sign in</h2>
+        <p class="hint">Default password: <span class="mono">kyner2026</span> — change it after signing in.</p>
+        <label>Password</label>
+        <input type="password" id="adminPassInput" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')adminLogin()">
+        <button class="btn" onclick="adminLogin()">Sign in</button>
+        <div id="adminLoginError"></div>
+      </div>
+    </div>
+  `;
+}
+
+function viewDealerLogin(){
+  return `
+    <div class="gate">
+      <button class="back-link" onclick="go('gate')">${ICONS.back} back</button>
+      <div class="form-box">
+        <div class="form-icon" style="background:var(--sage-soft);color:var(--sage);">${ICONS.dealer}</div>
+        <h2>Dealer sign in</h2>
+        <p class="hint">Use the username and password KYNER issued you.</p>
+        <label>Username</label>
+        <input type="text" id="dealerUserInput" placeholder="e.g. dealer_colombo1" onkeydown="if(event.key==='Enter')dealerLogin()">
+        <label>Password</label>
+        <input type="password" id="dealerPassInput" placeholder="Password" onkeydown="if(event.key==='Enter')dealerLogin()">
+        <button class="btn" onclick="dealerLogin()">Sign in</button>
+        <div id="dealerLoginError"></div>
+      </div>
+    </div>
+  `;
+}
+
+function topbar(roleLabel, opts){
+  opts = opts || {};
+  const org = state.orgProfile || {};
+  return `
+    <div class="topbar">
+      <div class="wordmark">
+        ${org.logo ? `<img class="org-logo-topbar" src="${org.logo}" alt="">` : ''}
+        <span class="k">${org.name || 'KYNER'}</span> <span class="sub">WHOLESALE</span>
+      </div>
+      <div class="who">
+        <div class="who-name">
+          <div class="avatar">${initials(roleLabel)}</div><span>${roleLabel}</span>
+        </div>
+        <button onclick="logout()">${ICONS.signout} Sign out</button>
+      </div>
+    </div>
+  `;
+}
+
+function fmt(n){ return 'Rs ' + Number(n).toLocaleString('en-LK'); }
+
+/* ---------- Admin ---------- */
+
+function viewAdmin(){
+  let body = '';
+  if(state.adminTab === 'dealers') body = adminDealersTab();
+  else if(state.adminTab === 'products') body = adminProductsTab();
+  else if(state.adminTab === 'brands') body = adminBrandsTab();
+  else if(state.adminTab === 'categories') body = adminCategoriesTab();
+  else if(state.adminTab === 'settings') body = adminSettingsTab();
+
+  return `
+    ${topbar('Admin')}
+    <div class="wrap">
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-label">DEALERS</div><div class="stat-value">${state.dealers.length}</div></div>
+        <div class="stat-card"><div class="stat-label">ACTIVE DEALERS</div><div class="stat-value sage">${state.dealers.filter(d=>d.status==='active').length}</div></div>
+        <div class="stat-card"><div class="stat-label">PRODUCTS</div><div class="stat-value">${state.products.length}</div></div>
+        <div class="stat-card"><div class="stat-label">BRANDS</div><div class="stat-value brass">${state.brands.length}</div></div>
+      </div>
+      <div class="tabs">
+        <button class="tab ${state.adminTab==='dealers'?'active':''}" onclick="setAdminTab('dealers')">${ICONS.dealers} Dealers</button>
+        <button class="tab ${state.adminTab==='products'?'active':''}" onclick="setAdminTab('products')">${ICONS.products} Products</button>
+        <button class="tab ${state.adminTab==='brands'?'active':''}" onclick="setAdminTab('brands')">${ICONS.brands} Brands</button>
+        <button class="tab ${state.adminTab==='categories'?'active':''}" onclick="setAdminTab('categories')">${ICONS.categories} Categories</button>
+        <button class="tab ${state.adminTab==='settings'?'active':''}" onclick="setAdminTab('settings')">${ICONS.settings} Settings</button>
+      </div>
+      ${body}
+    </div>
+    ${state.modal ? renderModal() : ''}
+    ${state.toast ? `<div class="toast">${state.toast}</div>` : ''}
+  `;
+}
+
+function adminDealersTab(){
+  const rows = state.dealers.map(d => `
+    <tr>
+      <td data-label="Business" title="${(d.address||'').replace(/"/g,'&quot;')}">${d.businessName}</td>
+      <td data-label="Contact">${d.contactName}${d.phone ? ' &middot; '+d.phone : ''}</td>
+      <td data-label="Email" class="mono muted">${d.email||'—'}</td>
+      <td data-label="KYNER Reg. No." class="mono" style="color:var(--brass)">${d.kynerRegNo||'—'}</td>
+      <td data-label="Username" class="mono">${d.username}</td>
+      <td data-label="Status"><span class="pill ${d.status}">${d.status}</span></td>
+      <td data-label="Actions">
+        <button class="btn ghost" onclick="openEditDealer('${d.id}')">Edit</button>
+        <button class="btn ghost" style="margin-left:8px;" onclick="toggleDealerStatus('${d.id}')">${d.status==='active'?'Suspend':'Activate'}</button>
+        <button class="btn danger" style="margin-left:8px;" onclick="confirmRemoveDealer('${d.id}')">Remove</button>
+      </td>
+    </tr>
+  `).join('');
+
+  return `
+    <div class="section-head">
+      <h2>Dealer accounts</h2>
+      <button class="btn small" onclick="openAddDealer()">+ Add dealer</button>
+    </div>
+    <div class="panel">
+      ${state.dealers.length === 0 ? `<div class="empty"><span class="empty-icon">${ICONS.empty}</span>No dealers yet. Add your first dealer to issue them a login.</div>` : `
+      <table>
+        <thead><tr><th>Business</th><th>Contact</th><th>Email</th><th>KYNER Reg. No.</th><th>Username</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`}
+    </div>
+  `;
+}
+
+function productThumb(p){
+  return p.image
+    ? `<img class="thumb" src="${p.image}" alt="">`
+    : `<div class="thumb-placeholder">${ICONS.imgIcon}</div>`;
+}
+
+function adminProductsTab(){
+  const rows = state.products.map(p => `
+    <tr>
+      <td data-label="Image">${productThumb(p)}</td>
+      <td data-label="Brand">${p.brand}</td>
+      <td data-label="Category">${p.category ? `<span class="tag-chip">${p.category}</span>` : '<span class="muted">—</span>'}</td>
+      <td data-label="Product">${p.name}</td>
+      <td data-label="SKU" class="mono muted">${p.sku||'—'}</td>
+      <td data-label="Wholesale" class="price">${fmt(p.wholesale)}</td>
+      <td data-label="Retail" class="muted mono">${fmt(p.retail)}</td>
+      <td data-label="Stock" class="mono">${p.stock ?? '—'}</td>
+      <td data-label="Actions">
+        <button class="btn ghost" onclick="openEditProduct('${p.id}')">Edit</button>
+        <button class="btn danger" style="margin-left:8px;" onclick="confirmRemoveProduct('${p.id}')">Delete</button>
+      </td>
+    </tr>
+  `).join('');
+
+  return `
+    <div class="section-head">
+      <h2>Product catalog</h2>
+      <button class="btn small" onclick="openAddProduct()">+ Add product</button>
+    </div>
+    <div class="panel">
+      ${state.products.length === 0 ? `<div class="empty"><span class="empty-icon">${ICONS.empty}</span>No products yet.</div>` : `
+      <table>
+        <thead><tr><th>Image</th><th>Brand</th><th>Category</th><th>Product</th><th>SKU</th><th>Wholesale</th><th>Retail</th><th>Stock</th><th>Actions</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`}
+    </div>
+  `;
+}
+
+function adminBrandsTab(){
+  const chips = state.brands.map(b => `
+    <tr>
+      <td data-label="Brand">${b}</td>
+      <td data-label="Products" class="muted mono">${state.products.filter(p=>p.brand===b).length}</td>
+      <td data-label="Actions">
+        <button class="btn ghost" onclick="openRenameBrand('${b.replace(/'/g,"\\'")}')">Rename</button>
+        <button class="btn danger" style="margin-left:8px;" onclick="confirmRemoveBrand('${b.replace(/'/g,"\\'")}')">Remove</button>
+      </td>
+    </tr>
+  `).join('');
+
+  return `
+    <div class="section-head"><h2>Brands</h2></div>
+    <div class="panel pad">
+      <div class="row-2" style="margin-bottom:18px;">
+        <div><input type="text" id="newBrandInput" placeholder="New brand name" onkeydown="if(event.key==='Enter')addBrand()"></div>
+        <div style="flex:0 0 auto;"><button class="btn small" onclick="addBrand()">Add brand</button></div>
+      </div>
+    </div>
+    <div class="panel">
+      ${state.brands.length===0 ? `<div class="empty"><span class="empty-icon">${ICONS.empty}</span>No brands yet.</div>` : `
+      <table>
+        <thead><tr><th>Brand</th><th>Products</th><th>Actions</th></tr></thead>
+        <tbody>${chips}</tbody>
+      </table>`}
+    </div>
+  `;
+}
+
+function adminCategoriesTab(){
+  const rows = state.categories.map(c => `
+    <tr>
+      <td data-label="Category">${c}</td>
+      <td data-label="Products" class="muted mono">${state.products.filter(p=>p.category===c).length}</td>
+      <td data-label="Actions">
+        <button class="btn ghost" onclick="openRenameCategory('${c.replace(/'/g,"\\'")}')">Rename</button>
+        <button class="btn danger" style="margin-left:8px;" onclick="confirmRemoveCategory('${c.replace(/'/g,"\\'")}')">Remove</button>
+      </td>
+    </tr>
+  `).join('');
+
+  return `
+    <div class="section-head"><h2>Product categories</h2></div>
+    <div class="panel pad">
+      <div class="row-2" style="margin-bottom:18px;">
+        <div><input type="text" id="newCategoryInput" placeholder="New category name, e.g. Monitors" onkeydown="if(event.key==='Enter')addCategory()"></div>
+        <div style="flex:0 0 auto;"><button class="btn small" onclick="addCategory()">Add category</button></div>
+      </div>
+    </div>
+    <div class="panel">
+      ${state.categories.length===0 ? `<div class="empty"><span class="empty-icon">${ICONS.empty}</span>No categories yet.</div>` : `
+      <table>
+        <thead><tr><th>Category</th><th>Products</th><th>Actions</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`}
+    </div>
+  `;
+}
+
+function adminSettingsTab(){
+  let sub;
+  if(state.settingsSubTab === 'customizations') sub = settingsCustomizationsPanel();
+  else if(state.settingsSubTab === 'security') sub = settingsSecurityPanel();
+  else sub = settingsProfilePanel();
+
+  return `
+    <div class="section-head"><h2>Admin settings</h2></div>
+    <div class="subtabs">
+      <button class="subtab ${state.settingsSubTab==='profile'?'active':''}" onclick="setSettingsSubTab('profile')">Profile</button>
+      <button class="subtab ${state.settingsSubTab==='customizations'?'active':''}" onclick="setSettingsSubTab('customizations')">Customizations</button>
+      <button class="subtab ${state.settingsSubTab==='security'?'active':''}" onclick="setSettingsSubTab('security')">Security</button>
+    </div>
+    ${sub}
+  `;
+}
+
+function settingsCustomizationsPanel(){
+  return `
+    <div class="panel pad" style="max-width:560px;">
+      <label>Theme</label>
+      <p class="hint" style="margin-top:-6px;">Applies to the whole portal — admin and dealer views.</p>
+      <div class="theme-choices">
+        <div class="theme-card ${state.theme==='dark'?'active':''}" onclick="setTheme('dark')">
+          <div class="theme-swatch dark-swatch"></div>
+          <span>Dark</span>
+        </div>
+        <div class="theme-card ${state.theme==='light'?'active':''}" onclick="setTheme('light')">
+          <div class="theme-swatch light-swatch"></div>
+          <span>Light</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function settingsSecurityPanel(){
+  return `
+    <div class="panel pad" style="max-width:400px;">
+      <label>Reset admin password</label>
+      <input type="password" id="newAdminPass" placeholder="New password">
+      <button class="btn" onclick="changeAdminPass()">Update password</button>
+      <div id="settingsMsg"></div>
+    </div>
+  `;
+}
+
+function settingsProfilePanel(){
+  const o = state.orgProfile || {};
+  return `
+    <div class="panel pad" style="max-width:560px;">
+      <label>Organization logo <span class="tag-hint">(shown as a circle)</span></label>
+      <div class="image-upload">
+        <div class="logo-preview-box" id="logoPreview">${pendingLogoData ? `<img src="${pendingLogoData}">` : ICONS.imgIcon}</div>
+        <div class="file-input-wrap">
+          <input type="file" accept="image/*" id="op_logoFile" onchange="handleLogoSelect(this)">
+          <div id="removeLogoWrap">${pendingLogoData ? `<button type="button" class="btn ghost" style="margin-top:8px;" onclick="clearLogo()">Remove logo</button>` : ''}</div>
+        </div>
+      </div>
+
+      <label>Organization name</label>
+      <input type="text" id="op_name" value="${o.name||''}" placeholder="e.g. KYNER">
+
+      <label>Business tagline</label>
+      <input type="text" id="op_tagline" value="${o.tagline||''}" placeholder="e.g. Premium tech gear, Sri Lanka">
+
+      <label>Organization industry</label>
+      <select id="op_industry">
+        ${INDUSTRIES.map(i => `<option value="${i}" ${o.industry===i?'selected':''}>${i}</option>`).join('')}
+      </select>
+
+      <label>Organization address</label>
+      <textarea id="op_address" placeholder="Street / city / country">${o.address||''}</textarea>
+
+      <label>Business description</label>
+      <textarea id="op_description" placeholder="A short description of what your business does">${o.description||''}</textarea>
+
+      <div class="row-2">
+        <div><label>Business email</label><input type="email" id="op_email" value="${o.email||''}" placeholder="info@business.com"></div>
+        <div><label>Business number</label><input type="text" id="op_phone" value="${o.phone||''}" placeholder="Mobile / office number"></div>
+      </div>
+
+      <div class="row-2">
+        <div><label>Business registration number</label><input type="text" id="op_regNumber" value="${o.regNumber||''}" placeholder="e.g. PV 00123456"></div>
+        <div><label>Website URL</label><input type="text" id="op_website" value="${o.website||''}" placeholder="https://yourbusiness.com"></div>
+      </div>
+
+      <button class="btn" onclick="submitOrgProfile()">Save profile</button>
+      <div id="orgProfileMsg"></div>
+    </div>
+  `;
+}
+
+/* ---------- Dealer ---------- */
+
+function viewDealer(){
+  const dealer = state.dealers.find(d=>d.id === state.session.dealer.id) || state.session.dealer;
+  let body = state.dealerTab === 'profile' ? dealerProfileTab(dealer) : dealerPricesTab(dealer);
+
+  return `
+    ${topbar(dealer.businessName)}
+    <div class="wrap">
+      <div class="tabs">
+        <button class="tab ${state.dealerTab==='prices'?'active':''}" onclick="setDealerTab('prices')">${ICONS.list} Price List</button>
+        <button class="tab ${state.dealerTab==='profile'?'active':''}" onclick="setDealerTab('profile')">${ICONS.profile} My Profile</button>
+      </div>
+      ${body}
+    </div>
+    ${state.modal ? renderModal() : ''}
+    ${state.toast ? `<div class="toast">${state.toast}</div>` : ''}
+  `;
+}
+
+function dealerPricesTab(dealer){
+  const brands = ['All', ...state.brands];
+  const cats = ['All', ...state.categories];
+  let products = state.products;
+  if(state.dealerBrand !== 'All') products = products.filter(p => p.brand === state.dealerBrand);
+  if(state.dealerCategory !== 'All') products = products.filter(p => p.category === state.dealerCategory);
+  if(state.dealerFilter.trim()){
+    const f = state.dealerFilter.toLowerCase();
+    products = products.filter(p => p.name.toLowerCase().includes(f) || (p.sku||'').toLowerCase().includes(f));
+  }
+
+  const grouped = {};
+  products.forEach(p => { (grouped[p.brand] = grouped[p.brand] || []).push(p); });
+
+  const groupsHtml = Object.keys(grouped).length === 0
+    ? `<div class="empty"><span class="empty-icon">${ICONS.empty}</span>No products match your search.</div>`
+    : Object.keys(grouped).map(brand => `
+      <div class="brand-group">
+        <h3>${brand}</h3>
+        <div class="panel">
+          <table>
+            <thead><tr><th>Image</th><th>Product</th><th>Category</th><th>SKU</th><th>Stock</th><th>Wholesale price</th></tr></thead>
+            <tbody>
+              ${grouped[brand].map(p => `
+                <tr class="product-row-clickable" onclick="openProductView('${p.id}')">
+                  <td data-label="Image">${productThumb(p)}</td>
+                  <td data-label="Product">${p.name}</td>
+                  <td data-label="Category">${p.category ? `<span class="tag-chip">${p.category}</span>` : '<span class="muted">—</span>'}</td>
+                  <td data-label="SKU" class="mono muted">${p.sku||'—'}</td>
+                  <td data-label="Stock" class="mono">${p.stock>0 ? p.stock : `<span style="color:var(--danger)">Out</span>`}</td>
+                  <td data-label="Wholesale price" class="price">${fmt(p.wholesale)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `).join('');
+
+  return `
+    <div class="section-head">
+      <h2>Wholesale price list</h2>
+      <span class="count">${products.length} item${products.length===1?'':'s'}</span>
+    </div>
+    <div class="search-row">
+      <input type="text" id="dealerSearchInput" placeholder="Search product or SKU" value="${state.dealerFilter}" oninput="setDealerFilter(this.value)">
+      <select onchange="setDealerBrand(this.value)">
+        ${brands.map(b => `<option value="${b}" ${state.dealerBrand===b?'selected':''}>${b}</option>`).join('')}
+      </select>
+      <select onchange="setDealerCategory(this.value)">
+        ${cats.map(c => `<option value="${c}" ${state.dealerCategory===c?'selected':''}>${c}</option>`).join('')}
+      </select>
+    </div>
+    ${groupsHtml}
+    <div class="footer-note">PRICES ARE WHOLESALE RATES FOR REGISTERED DEALERS ONLY</div>
+  `;
+}
+
+function dealerProfileTab(dealer){
+  return `
+    <div class="section-head"><h2>My profile</h2></div>
+    <div class="panel profile-panel">
+      <div style="padding:22px 22px 0;">
+        <div class="profile-header">
+          <div class="profile-avatar">${initials(dealer.businessName)}</div>
+          <div>
+            <div style="font-size:18px;font-weight:600;">${dealer.businessName}</div>
+            <span class="pill ${dealer.status}">${dealer.status}</span>
+            ${dealer.status === 'active' ? `<span class="verified-badge">${ICONS.verified} Verified Dealer</span>` : ''}
+          </div>
+        </div>
+      </div>
+      <div class="profile-grid">
+        <div class="profile-field"><div class="pf-label">Contact person</div><div class="pf-value">${dealer.contactName||'—'}</div></div>
+        <div class="profile-field"><div class="pf-label">Phone</div><div class="pf-value">${dealer.phone||'—'}</div></div>
+        <div class="profile-field"><div class="pf-label">Business email</div><div class="pf-value">${dealer.email||'—'}</div></div>
+        <div class="profile-field"><div class="pf-label">KYNER dealer reg. no.</div><div class="pf-value mono">${dealer.kynerRegNo||'—'}</div></div>
+        <div class="profile-field"><div class="pf-label">Business registration no.</div><div class="pf-value">${dealer.regNumber||'—'}</div></div>
+        <div class="profile-field"><div class="pf-label">Username</div><div class="pf-value mono">${dealer.username}</div></div>
+        <div class="profile-field"><div class="pf-label">Business address</div><div class="pf-value">${dealer.address||'—'}</div></div>
+        <div class="profile-field"><div class="pf-label">Dealer since</div><div class="pf-value mono">${dealer.dateAdded||'—'}</div></div>
+      </div>
+    </div>
+    <div class="footer-note">TO UPDATE ANY OF THESE DETAILS, PLEASE CONTACT KYNER</div>
+  `;
+}
+
+/* ---------- Modals ---------- */
+
+function renderModal(){
+  const m = state.modal;
+  if(m.type === 'addDealer') return modalDealerForm(m, false);
+  if(m.type === 'editDealer') return modalDealerForm(m, true);
+  if(m.type === 'addProduct') return modalProductForm(m, false);
+  if(m.type === 'editProduct') return modalProductForm(m, true);
+  if(m.type === 'renameBrand') return modalRenameSimple(m, 'Rename brand', 'submitRenameBrand');
+  if(m.type === 'renameCategory') return modalRenameSimple(m, 'Rename category', 'submitRenameCategory');
+  if(m.type === 'confirm') return modalConfirm(m);
+  if(m.type === 'viewProduct') return modalProductView(m);
+  return '';
+}
+
+function modalProductView(m){
+  const p = m.product;
+  return `
+    <div class="modal-overlay" onclick="if(event.target===this) closeModal()">
+      <div class="modal">
+        ${p.image ? `<img class="product-view-img" src="${p.image}" alt="">` : `<div class="product-view-img-placeholder">${ICONS.imgIcon}</div>`}
+        <div class="product-view-top">
+          <div class="product-view-title">${p.name}</div>
+          ${p.category ? `<span class="tag-chip">${p.category}</span>` : ''}
+        </div>
+        <div class="muted mono" style="font-size:12.5px;">${p.brand}${p.sku ? ' &middot; SKU '+p.sku : ''}</div>
+        ${p.description ? `<div class="product-view-desc">${p.description}</div>` : `<div class="product-view-desc muted">No description added yet.</div>`}
+        <div class="spec-row"><span class="k">Wholesale price</span><span class="v price">${fmt(p.wholesale)}</span></div>
+        <div class="spec-row"><span class="k">Stock</span><span class="v mono">${p.stock>0 ? p.stock+' units' : 'Out of stock'}</span></div>
+        <div class="modal-actions">
+          <button class="btn secondary" onclick="closeModal()">Close</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function modalConfirm(m){
+  return `
+    <div class="modal-overlay" onclick="if(event.target===this) closeModal()">
+      <div class="modal small">
+        <h3>${m.title||'Are you sure?'}</h3>
+        <p class="confirm-msg">${m.message}</p>
+        <div class="modal-actions">
+          <button class="btn secondary" onclick="closeModal()">Cancel</button>
+          <button class="btn" style="${m.danger?'background:linear-gradient(120deg,#e2665b,#c14a40);color:#fff;':''}" onclick="${m.action}">${m.confirmLabel||'Confirm'}</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function modalRenameSimple(m, title, submitFn){
+  return `
+    <div class="modal-overlay" onclick="if(event.target===this) closeModal()">
+      <div class="modal small">
+        <h3>${title}</h3>
+        <label>Name</label>
+        <input type="text" id="f_renameVal" value="${m.oldName}">
+        <div id="renameError"></div>
+        <div class="modal-actions">
+          <button class="btn secondary" onclick="closeModal()">Cancel</button>
+          <button class="btn" onclick="${submitFn}('${m.oldName.replace(/'/g,"\\'")}')">Save</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function modalDealerForm(m, isEdit){
+  const d = m.dealer || {businessName:'',contactName:'',phone:'',email:'',address:'',regNumber:'',kynerRegNo:nextKynerRegNo(),username:''};
+  return `
+    <div class="modal-overlay" onclick="if(event.target===this) closeModal()">
+      <div class="modal">
+        <h3>${isEdit ? 'Edit dealer' : 'Add dealer'}</h3>
+        <label>Business name</label>
+        <input type="text" id="f_businessName" value="${d.businessName}" placeholder="e.g. Colombo Tech Traders">
+        <label>Contact name</label>
+        <input type="text" id="f_contactName" value="${d.contactName}" placeholder="e.g. Nimal Perera">
+        <div class="row-2">
+          <div><label>Phone</label><input type="text" id="f_phone" value="${d.phone||''}" placeholder="07X XXX XXXX"></div>
+          <div><label>Business email</label><input type="email" id="f_email" value="${d.email||''}" placeholder="name@business.com"></div>
+        </div>
+        <label>Business address</label>
+        <textarea id="f_address" placeholder="Shop / street / city">${d.address||''}</textarea>
+        <label>Business registration number <span class="tag-hint">(dealer's own, optional)</span></label>
+        <input type="text" id="f_regNumber" value="${d.regNumber||''}" placeholder="e.g. PV 00123456">
+        <label>KYNER dealer reg. no. <span class="tag-hint">(issued by us)</span></label>
+        <input type="text" id="f_kynerRegNo" value="${d.kynerRegNo||''}">
+        <label>Username</label>
+        <input type="text" id="f_username" value="${d.username||''}" placeholder="e.g. dealer_colombo1" ${isEdit?'':''}>
+        ${isEdit ? `
+          <label>Password</label>
+          <div class="pass-row">
+            <input type="text" id="f_password" value="${d.password||''}">
+            <button type="button" class="btn ghost" onclick="regeneratePassword()">Regenerate</button>
+          </div>
+        ` : ''}
+        ${m.credentials ? `
+          <div class="cred-box">
+            <div class="row"><span>Username</span><span>${m.credentials.username}</span></div>
+            <div class="row"><span>Password</span><span>${m.credentials.password}</span></div>
+            <div class="row"><span></span><span style="color:var(--text-faint)">Share these with the dealer</span></div>
+          </div>
+          <div class="modal-actions">
+            <button class="btn" onclick="closeModal()">Done</button>
+          </div>
+        ` : `
+          <div id="dealerFormError"></div>
+          <div class="modal-actions">
+            <button class="btn secondary" onclick="closeModal()">Cancel</button>
+            <button class="btn" onclick="${isEdit ? `submitEditDealer('${d.id}')` : 'submitAddDealer()'}">${isEdit ? 'Save changes' : 'Create account &amp; generate password'}</button>
+          </div>
+        `}
+      </div>
+    </div>
+  `;
+}
+
+function modalProductForm(m, isEdit){
+  const p = m.product || {brand: state.brands[0]||'', category: state.categories[0]||'', name:'', sku:'', wholesale:'', retail:'', stock:''};
+  return `
+    <div class="modal-overlay" onclick="if(event.target===this) closeModal()">
+      <div class="modal">
+        <h3>${isEdit?'Edit product':'Add product'}</h3>
+        <label>Product image</label>
+        <div class="image-upload">
+          <div class="image-preview-box" id="imagePreview">${pendingImageData ? `<img src="${pendingImageData}">` : ICONS.imgIcon}</div>
+          <div class="file-input-wrap">
+            <input type="file" accept="image/*" id="f_imageFile" onchange="handleImageSelect(this)">
+            <div id="removeImageWrap">${pendingImageData ? `<button type="button" class="btn ghost" id="removeImageBtn" style="margin-top:8px;" onclick="clearImage()">Remove image</button>` : ''}</div>
+          </div>
+        </div>
+        <div class="row-2">
+          <div>
+            <label>Brand</label>
+            <select id="f_brand">
+              ${state.brands.map(b => `<option value="${b}" ${p.brand===b?'selected':''}>${b}</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <label>Category</label>
+            <select id="f_category">
+              <option value="">No category</option>
+              ${state.categories.map(c => `<option value="${c}" ${p.category===c?'selected':''}>${c}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+        <label>Product name</label>
+        <input type="text" id="f_name" value="${p.name}" placeholder="e.g. MSI Modern 14 Laptop">
+        <label>SKU (optional)</label>
+        <input type="text" id="f_sku" value="${p.sku||''}" placeholder="e.g. MSI-M14-C13">
+        <label>Description <span class="tag-hint">(shown to dealers)</span></label>
+        <textarea id="f_description" placeholder="Key features, specs, what's in the box...">${p.description||''}</textarea>
+        <div class="row-2">
+          <div><label>Wholesale price (Rs)</label><input type="number" id="f_wholesale" value="${p.wholesale}"></div>
+          <div><label>Retail price (Rs)</label><input type="number" id="f_retail" value="${p.retail}"></div>
+        </div>
+        <label>Stock quantity</label>
+        <input type="number" id="f_stock" value="${p.stock}">
+        <div id="productFormError"></div>
+        <div class="modal-actions">
+          <button class="btn secondary" onclick="closeModal()">Cancel</button>
+          <button class="btn" onclick="${isEdit ? `submitEditProduct('${p.id}')` : 'submitAddProduct()'}">${isEdit?'Save changes':'Add product'}</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/* ---------- Actions ---------- */
+
+function go(view){ state.view = view; render(); }
+
+function adminLogin(){
+  const val = document.getElementById('adminPassInput').value;
+  if(val === state.adminPass){
+    state.session = {role:'admin'};
+    state.view = 'admin';
+    render();
+  } else {
+    document.getElementById('adminLoginError').innerHTML = `<div class="error">Incorrect password.</div>`;
+  }
+}
+
+function dealerLogin(){
+  const u = document.getElementById('dealerUserInput').value.trim();
+  const p = document.getElementById('dealerPassInput').value;
+  const dealer = state.dealers.find(d => d.username === u && d.password === p);
+  if(!dealer){
+    document.getElementById('dealerLoginError').innerHTML = `<div class="error">Username or password is incorrect.</div>`;
+    return;
+  }
+  if(dealer.status !== 'active'){
+    document.getElementById('dealerLoginError').innerHTML = `<div class="error">This account is suspended. Contact KYNER.</div>`;
+    return;
+  }
+  state.session = {role:'dealer', dealer};
+  state.dealerTab = 'prices';
+  state.view = 'dealer';
+  render();
+}
+
+function logout(){ state.session = null; state.view = 'adminLogin'; render(); }
+
+function setAdminTab(t){
+  state.adminTab = t;
+  if(t === 'settings') pendingLogoData = (state.orgProfile && state.orgProfile.logo) || null;
+  render();
+}
+function setSettingsSubTab(t){
+  state.settingsSubTab = t;
+  if(t === 'profile') pendingLogoData = (state.orgProfile && state.orgProfile.logo) || null;
+  render();
+}
+async function setTheme(t){
+  state.theme = t;
+  applyTheme();
+  await STORE.set(K.theme, t, true);
+  render();
+}
+function setDealerTab(t){ state.dealerTab = t; render(); }
+function setDealerFilter(v){ state.dealerFilter = v; render(); }
+function setDealerBrand(v){ state.dealerBrand = v; render(); }
+function setDealerCategory(v){ state.dealerCategory = v; render(); }
+
+function openAddDealer(){ state.modal = {type:'addDealer', credentials:null}; render(); }
+function openEditDealer(id){
+  const d = state.dealers.find(x=>x.id===id);
+  state.modal = {type:'editDealer', dealer: d, credentials:null};
+  render();
+}
+function closeModal(){ state.modal = null; pendingImageData = null; render(); }
+
+function askConfirm(opts){
+  state.modal = {type:'confirm', title:opts.title, message:opts.message, action:opts.action, confirmLabel:opts.confirmLabel, danger:opts.danger !== false};
+  render();
+}
+
+function regeneratePassword(){
+  const newPass = genPassword();
+  const el = document.getElementById('f_password');
+  if(el) el.value = newPass;
+}
+
+async function submitAddDealer(){
+  const businessName = document.getElementById('f_businessName').value.trim();
+  const contactName = document.getElementById('f_contactName').value.trim();
+  const phone = document.getElementById('f_phone').value.trim();
+  const email = document.getElementById('f_email').value.trim();
+  const address = document.getElementById('f_address').value.trim();
+  const regNumber = document.getElementById('f_regNumber').value.trim();
+  const kynerRegNo = document.getElementById('f_kynerRegNo').value.trim() || nextKynerRegNo();
+  const username = document.getElementById('f_username').value.trim();
+
+  if(!businessName || !contactName || !username){
+    document.getElementById('dealerFormError').innerHTML = `<div class="error">Business name, contact name and username are required.</div>`;
+    return;
+  }
+  if(state.dealers.some(d => d.username === username)){
+    document.getElementById('dealerFormError').innerHTML = `<div class="error">That username is already taken.</div>`;
+    return;
+  }
+  const password = genPassword();
+  const dealer = {id:genId('d'), businessName, contactName, phone, email, address, regNumber, kynerRegNo, username, password, status:'active', dateAdded: new Date().toISOString().slice(0,10)};
+  state.dealers.push(dealer);
+  await STORE.set(K.dealers, state.dealers, true);
+  state.modal = {type:'addDealer', credentials:{username, password}};
+  render();
+}
+
+async function submitEditDealer(id){
+  const d = state.dealers.find(x=>x.id===id);
+  const businessName = document.getElementById('f_businessName').value.trim();
+  const contactName = document.getElementById('f_contactName').value.trim();
+  const username = document.getElementById('f_username').value.trim();
+  const password = document.getElementById('f_password').value;
+
+  if(!businessName || !contactName || !username || !password){
+    document.getElementById('dealerFormError').innerHTML = `<div class="error">Business name, contact name, username and password are required.</div>`;
+    return;
+  }
+  if(state.dealers.some(x => x.username === username && x.id !== id)){
+    document.getElementById('dealerFormError').innerHTML = `<div class="error">That username is already taken by another dealer.</div>`;
+    return;
+  }
+  d.businessName = businessName;
+  d.contactName = contactName;
+  d.phone = document.getElementById('f_phone').value.trim();
+  d.email = document.getElementById('f_email').value.trim();
+  d.address = document.getElementById('f_address').value.trim();
+  d.regNumber = document.getElementById('f_regNumber').value.trim();
+  d.kynerRegNo = document.getElementById('f_kynerRegNo').value.trim();
+  d.username = username;
+  d.password = password;
+
+  await STORE.set(K.dealers, state.dealers, true);
+  closeModal();
+  showToast('Dealer details updated.');
+}
+
+async function toggleDealerStatus(id){
+  const d = state.dealers.find(x=>x.id===id);
+  d.status = d.status === 'active' ? 'inactive' : 'active';
+  await STORE.set(K.dealers, state.dealers, true);
+  render();
+  showToast(`${d.businessName} is now ${d.status}.`);
+}
+
+function confirmRemoveDealer(id){
+  const d = state.dealers.find(x=>x.id===id);
+  if(!d) return;
+  askConfirm({
+    title:'Remove dealer',
+    message:`Remove ${d.businessName}? They will lose access immediately. This cannot be undone.`,
+    confirmLabel:'Remove',
+    action:`removeDealer('${id}')`
+  });
+}
+
+async function removeDealer(id){
+  state.dealers = state.dealers.filter(x=>x.id!==id);
+  await STORE.set(K.dealers, state.dealers, true);
+  state.modal = null;
+  render();
+  showToast('Dealer removed.');
+}
+
+function openProductView(id){
+  const p = state.products.find(x=>x.id===id);
+  if(!p) return;
+  state.modal = {type:'viewProduct', product:p};
+  render();
+}
+
+function openAddProduct(){ pendingImageData = null; state.modal = {type:'addProduct'}; render(); }
+function openEditProduct(id){
+  const prod = state.products.find(p=>p.id===id);
+  pendingImageData = prod.image || null;
+  state.modal = {type:'editProduct', product: prod};
+  render();
+}
+
+function handleImageSelect(input){
+  const file = input.files[0];
+  if(!file) return;
+  if(!file.type.startsWith('image/')){ showToast('Please choose an image file.'); return; }
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      const maxW = 480;
+      const scale = Math.min(1, maxW / img.width);
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      pendingImageData = canvas.toDataURL('image/jpeg', 0.82);
+      const preview = document.getElementById('imagePreview');
+      if(preview) preview.innerHTML = `<img src="${pendingImageData}">`;
+      const wrap = document.getElementById('removeImageWrap');
+      if(wrap) wrap.innerHTML = `<button type="button" class="btn ghost" id="removeImageBtn" style="margin-top:8px;" onclick="clearImage()">Remove image</button>`;
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearImage(){
+  pendingImageData = null;
+  render();
+}
+
+async function submitAddProduct(){
+  const brand = document.getElementById('f_brand').value;
+  const category = document.getElementById('f_category').value;
+  const name = document.getElementById('f_name').value.trim();
+  const sku = document.getElementById('f_sku').value.trim();
+  const description = document.getElementById('f_description').value.trim();
+  const wholesale = parseFloat(document.getElementById('f_wholesale').value);
+  const retail = parseFloat(document.getElementById('f_retail').value) || 0;
+  const stock = parseInt(document.getElementById('f_stock').value) || 0;
+
+  if(!name || isNaN(wholesale)){
+    document.getElementById('productFormError').innerHTML = `<div class="error">Product name and wholesale price are required.</div>`;
+    return;
+  }
+  state.products.push({id:genId('p'), brand, category, name, sku, description, wholesale, retail, stock, image: pendingImageData});
+  await STORE.set(K.products, state.products, true);
+  closeModal();
+  showToast('Product added.');
+}
+
+async function submitEditProduct(id){
+  const p = state.products.find(x=>x.id===id);
+  p.brand = document.getElementById('f_brand').value;
+  p.category = document.getElementById('f_category').value;
+  p.name = document.getElementById('f_name').value.trim();
+  p.sku = document.getElementById('f_sku').value.trim();
+  p.wholesale = parseFloat(document.getElementById('f_wholesale').value);
+  p.retail = parseFloat(document.getElementById('f_retail').value) || 0;
+  p.stock = parseInt(document.getElementById('f_stock').value) || 0;
+  p.description = document.getElementById('f_description').value.trim();
+  p.image = pendingImageData;
+
+  if(!p.name || isNaN(p.wholesale)){
+    document.getElementById('productFormError').innerHTML = `<div class="error">Product name and wholesale price are required.</div>`;
+    return;
+  }
+  await STORE.set(K.products, state.products, true);
+  closeModal();
+  showToast('Product updated.');
+}
+
+function confirmRemoveProduct(id){
+  const p = state.products.find(x=>x.id===id);
+  if(!p) return;
+  askConfirm({
+    title:'Delete product',
+    message:`Delete "${p.name}"? This cannot be undone.`,
+    confirmLabel:'Delete',
+    action:`removeProduct('${id}')`
+  });
+}
+
+async function removeProduct(id){
+  state.products = state.products.filter(p=>p.id!==id);
+  await STORE.set(K.products, state.products, true);
+  state.modal = null;
+  render();
+  showToast('Product deleted.');
+}
+
+async function addBrand(){
+  const input = document.getElementById('newBrandInput');
+  const val = input.value.trim();
+  if(!val) return;
+  if(state.brands.includes(val)){ showToast('Brand already exists.'); return; }
+  state.brands.push(val);
+  await STORE.set(K.brands, state.brands, true);
+  render();
+  showToast('Brand added.');
+}
+
+function openRenameBrand(oldName){ state.modal = {type:'renameBrand', oldName}; render(); }
+
+async function submitRenameBrand(oldName){
+  const val = document.getElementById('f_renameVal').value.trim();
+  if(!val){
+    document.getElementById('renameError').innerHTML = `<div class="error">Brand name can't be empty.</div>`;
+    return;
+  }
+  if(val !== oldName && state.brands.includes(val)){
+    document.getElementById('renameError').innerHTML = `<div class="error">A brand with that name already exists.</div>`;
+    return;
+  }
+  state.brands = state.brands.map(b => b === oldName ? val : b);
+  state.products.forEach(p => { if(p.brand === oldName) p.brand = val; });
+  await Promise.all([
+    STORE.set(K.brands, state.brands, true),
+    STORE.set(K.products, state.products, true)
+  ]);
+  closeModal();
+  showToast('Brand renamed.');
+}
+
+function confirmRemoveBrand(name){
+  const inUse = state.products.some(p=>p.brand===name);
+  askConfirm({
+    title:'Remove brand',
+    message: inUse
+      ? `"${name}" has products under it. Remove the brand anyway? Products will keep this brand label until reassigned.`
+      : `Remove "${name}"?`,
+    confirmLabel:'Remove',
+    action:`removeBrand('${name.replace(/'/g,"\\'")}')`
+  });
+}
+
+async function removeBrand(name){
+  state.brands = state.brands.filter(b=>b!==name);
+  await STORE.set(K.brands, state.brands, true);
+  state.modal = null;
+  render();
+  showToast('Brand removed.');
+}
+
+async function addCategory(){
+  const input = document.getElementById('newCategoryInput');
+  const val = input.value.trim();
+  if(!val) return;
+  if(state.categories.includes(val)){ showToast('Category already exists.'); return; }
+  state.categories.push(val);
+  await STORE.set(K.categories, state.categories, true);
+  render();
+  showToast('Category added.');
+}
+
+function openRenameCategory(oldName){ state.modal = {type:'renameCategory', oldName}; render(); }
+
+async function submitRenameCategory(oldName){
+  const val = document.getElementById('f_renameVal').value.trim();
+  if(!val){
+    document.getElementById('renameError').innerHTML = `<div class="error">Category name can't be empty.</div>`;
+    return;
+  }
+  if(val !== oldName && state.categories.includes(val)){
+    document.getElementById('renameError').innerHTML = `<div class="error">A category with that name already exists.</div>`;
+    return;
+  }
+  state.categories = state.categories.map(c => c === oldName ? val : c);
+  state.products.forEach(p => { if(p.category === oldName) p.category = val; });
+  await Promise.all([
+    STORE.set(K.categories, state.categories, true),
+    STORE.set(K.products, state.products, true)
+  ]);
+  closeModal();
+  showToast('Category renamed.');
+}
+
+function confirmRemoveCategory(name){
+  const inUse = state.products.some(p=>p.category===name);
+  askConfirm({
+    title:'Remove category',
+    message: inUse
+      ? `"${name}" has products under it. Remove the category anyway? Products will keep this category label until reassigned.`
+      : `Remove "${name}"?`,
+    confirmLabel:'Remove',
+    action:`removeCategory('${name.replace(/'/g,"\\'")}')`
+  });
+}
+
+async function removeCategory(name){
+  state.categories = state.categories.filter(c=>c!==name);
+  await STORE.set(K.categories, state.categories, true);
+  state.modal = null;
+  render();
+  showToast('Category removed.');
+}
+
+async function changeAdminPass(){
+  const val = document.getElementById('newAdminPass').value;
+  if(!val || val.length < 4){
+    document.getElementById('settingsMsg').innerHTML = `<div class="error">Password must be at least 4 characters.</div>`;
+    return;
+  }
+  state.adminPass = val;
+  await STORE.set(K.adminpass, val, true);
+  document.getElementById('settingsMsg').innerHTML = `<div class="success-msg">Password updated.</div>`;
+}
+
+function handleLogoSelect(input){
+  const file = input.files[0];
+  if(!file) return;
+  if(!file.type.startsWith('image/')){ showToast('Please choose an image file.'); return; }
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      // center-crop to a square, then downscale
+      const size = Math.min(img.width, img.height);
+      const sx = (img.width - size) / 2;
+      const sy = (img.height - size) / 2;
+      const outSize = 300;
+      const canvas = document.createElement('canvas');
+      canvas.width = outSize; canvas.height = outSize;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, sx, sy, size, size, 0, 0, outSize, outSize);
+      pendingLogoData = canvas.toDataURL('image/png');
+      const preview = document.getElementById('logoPreview');
+      if(preview) preview.innerHTML = `<img src="${pendingLogoData}">`;
+      const wrap = document.getElementById('removeLogoWrap');
+      if(wrap) wrap.innerHTML = `<button type="button" class="btn ghost" style="margin-top:8px;" onclick="clearLogo()">Remove logo</button>`;
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearLogo(){
+  pendingLogoData = null;
+  render();
+}
+
+async function submitOrgProfile(){
+  const profile = {
+    logo: pendingLogoData,
+    name: document.getElementById('op_name').value.trim() || 'KYNER',
+    tagline: document.getElementById('op_tagline').value.trim(),
+    industry: document.getElementById('op_industry').value,
+    address: document.getElementById('op_address').value.trim(),
+    description: document.getElementById('op_description').value.trim(),
+    email: document.getElementById('op_email').value.trim(),
+    phone: document.getElementById('op_phone').value.trim(),
+    regNumber: document.getElementById('op_regNumber').value.trim(),
+    website: document.getElementById('op_website').value.trim()
+  };
+  state.orgProfile = profile;
+  await STORE.set(K.orgProfile, profile, true);
+  const msg = document.getElementById('orgProfileMsg');
+  if(msg) msg.innerHTML = `<div class="success-msg">Profile saved.</div>`;
+  showToast('Organization profile updated.');
+}
+
+/* ---------- Render (with focus preservation for live-typed inputs) ---------- */
+
+function render(){
+  const app = document.getElementById('app');
+  const active = document.activeElement;
+  const activeId = active && active.id;
+  const selStart = active && typeof active.selectionStart === 'number' ? active.selectionStart : null;
+  const selEnd = active && typeof active.selectionEnd === 'number' ? active.selectionEnd : null;
+
+  if(state.view === 'loading') app.innerHTML = `<div class="gate"><p class="mono muted">Loading&hellip;</p></div>`;
+  else if(state.view === 'gate') app.innerHTML = viewGate();
+  else if(state.view === 'adminLogin') app.innerHTML = viewAdminLogin();
+  else if(state.view === 'dealerLogin') app.innerHTML = viewDealerLogin();
+  else if(state.view === 'admin') app.innerHTML = viewAdmin();
+  else if(state.view === 'dealer') app.innerHTML = viewDealer();
+
+  if(activeId){
+    const el = document.getElementById(activeId);
+    if(el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')){
+      el.focus();
+      if(selStart !== null && el.setSelectionRange){
+        try{ el.setSelectionRange(selStart, selEnd); }catch(e){}
+      }
+    }
+  }
+}
+
+loadAll();
+</script>
+</body>
+</html>
